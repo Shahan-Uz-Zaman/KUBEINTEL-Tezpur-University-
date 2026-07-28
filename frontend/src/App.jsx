@@ -7,6 +7,7 @@ import Monitoring from "./pages/Monitoring";
 import DeploymentManager from "./pages/DeploymentManager";
 import Logs from "./pages/Logs";
 import Events from "./pages/Events";
+import Health from "./Health";
 
 import "./App.css";
 
@@ -47,6 +48,10 @@ function App() {
               <Route
                   path="/events"
                   element={<Events />}
+              />
+              <Route
+                  path="/health"
+                  element={<Health />}
               />
           </Routes>
         </div>

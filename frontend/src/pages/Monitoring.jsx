@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import {
   getClusterMetrics,
   getStorage,
-  getNetwork
+  getNetwork,
+  getHealth
 } from "../services/monitoringService";
 import MetricCard from "../components/MetricCard";
 
@@ -14,6 +15,7 @@ function Monitoring() {
   const [error, setError] = useState("");
   const [storage,setStorage]=useState(null);
   const [network,setNetwork]=useState(null);
+  const [health, setHealth] = useState(null);
 
   const loadMetrics = async () => {
 
@@ -29,7 +31,10 @@ function Monitoring() {
       const networkRes = await getNetwork();
       console.log(networkRes.data);
       setNetwork(networkRes.data);
-      setError("");
+
+      const healthRes = await getHealth();
+      setHealth(healthRes.data);
+            setError("");
 
     } catch (err) {
 
