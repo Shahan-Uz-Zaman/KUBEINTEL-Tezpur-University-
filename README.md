@@ -1,454 +1,47 @@
 # KubeIntel – Kubernetes Intelligent Resource & Network Management Platform
 
-## Overview
-
-KubeIntel is a web-based Kubernetes management and monitoring platform developed using **Go**, **React**, and **Kubernetes Client-Go**. The platform provides administrators with a centralized dashboard for monitoring Kubernetes clusters, managing workloads, viewing logs and events, monitoring resource utilization, and analyzing cluster health.
-
----
-
-# Features
-
-* Kubernetes Cluster Overview
-* Dashboard with Cluster Statistics
-* Namespace Monitoring
-* Node Monitoring
-* Pod Monitoring
-* Deployment Management
-* CPU & Memory Monitoring
-* Storage Monitoring
-* Network Monitoring
-* Kubernetes Events Viewer
-* Pod Log Viewer
-* Health Monitoring
-* REST API Backend
-* Responsive React Frontend
-
----
-
-# Technology Stack
-
-## Backend
-
-* Go
-* Gin Framework
-* Kubernetes Client-Go
-* Metrics Server
-* Prometheus (Optional)
-
-## Frontend
-
-* React.js
-* Vite
-* Axios
-* CSS
-
-## Container Platform
-
-* Docker
-* Kubernetes
-* Minikube
-
----
-
-# System Requirements
-
-## Operating System
-
-* Ubuntu 22.04/24.04 LTS
-
-## Software
-
-* Go 1.25+
-* Node.js 20+
-* npm
-* Docker
-* Kubernetes
-* kubectl
-* Minikube
-* Helm
-* Git
-
----
-
-# Installation Guide
-
-## Step 1: Install Docker
-
-```bash
-sudo apt update
-sudo apt install docker.io -y
-
-sudo systemctl enable docker
-sudo systemctl start docker
-
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-Verify
-
-```bash
-docker version
-```
-
----
-
-## Step 2: Install Minikube
-
-```bash
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-
-sudo install minikube-linux-amd64 /usr/local/bin/minikube
-```
-
-Verify
-
-```bash
-minikube version
-```
-
----
-
-## Step 3: Install kubectl
-
-```bash
-sudo snap install kubectl --classic
-```
-
-Verify
-
-```bash
-kubectl version --client
-```
-
----
-
-## Step 4: Install Helm
-
-```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
-
-Verify
-
-```bash
-helm version
-```
-
----
-
-## Step 5: Start Kubernetes Cluster
-
-```bash
-minikube start
-```
-
-Verify
-
-```bash
-kubectl get nodes
-```
-
-Expected Output
-
-```text
-NAME        STATUS   ROLES
-minikube    Ready    control-plane
-```
-
----
-
-# Clone Project
-
-```bash
-git clone https://github.com/USERNAME/kubeintel.git
-
-cd kubeintel
-```
-
----
-
-# Backend Setup
-
-Move into backend directory
-
-```bash
-cd backend
-```
-
-Download dependencies
-
-```bash
-go mod tidy
-```
-
-Run backend
-
-```bash
-go run cmd/server/main.go
-```
-
-Expected Output
-
-```
-Server running on :8080
-```
-
----
-
-# Verify Backend
-
-Health Check
-
-```bash
-curl http://localhost:8080/health
-```
-
-Dashboard
-
-```bash
-curl http://localhost:8080/api/dashboard
-```
-
-Nodes
-
-```bash
-curl http://localhost:8080/api/nodes
-```
-
-Pods
-
-```bash
-curl http://localhost:8080/api/pods
-```
-
-Namespaces
-
-```bash
-curl http://localhost:8080/api/namespaces
-```
-
-Deployments
-
-```bash
-curl http://localhost:8080/api/deployments
-```
-
----
-
-# Frontend Setup
-
-Open another terminal
-
-```bash
-cd frontend
-```
-
-Install dependencies
-
-```bash
-npm install
-```
-
-Start frontend
-
-```bash
-npm run dev
-```
-
-Expected Output
-
-```
-VITE
-
-Local:
-http://localhost:5173
-```
-
-Open browser
-
-```
-http://localhost:5173
-```
-
----
-
-# Install Metrics Server
-
-Enable Metrics Server
-
-```bash
-minikube addons enable metrics-server
-```
-
-Verify
-
-```bash
-kubectl get pods -n kube-system | grep metrics
-```
-
-Wait until
-
-```
-Running
-```
-
-Check metrics
-
-```bash
-kubectl top nodes
-
-kubectl top pods -A
-```
-
----
-
-# Install Prometheus
-
-Add Helm Repository
-
-```bash
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-
-helm repo update
-```
-
-Create Namespace
-
-```bash
-kubectl create namespace monitoring
-```
-
-Install
-
-```bash
-helm install prometheus prometheus-community/prometheus -n monitoring
-```
-
-Verify
-
-```bash
-kubectl get pods -n monitoring
-```
-
-Wait until all pods are Running.
-
-Access Prometheus
-
-```bash
-kubectl port-forward -n monitoring svc/prometheus-server 9090:80
-```
-
-Browser
-
-```
-http://localhost:9090
-```
-
----
-
-# Useful Kubernetes Commands
-
-Cluster
-
-```bash
-kubectl cluster-info
-
-kubectl get nodes
-
-kubectl get namespaces
-```
-
-Pods
-
-```bash
-kubectl get pods -A
-
-kubectl describe pod POD_NAME
-
-kubectl logs POD_NAME
-```
-
-Deployments
-
-```bash
-kubectl get deployments -A
-
-kubectl create deployment nginx --image=nginx
-
-kubectl scale deployment nginx --replicas=3
-
-kubectl delete deployment nginx
-```
-
-Services
-
-```bash
-kubectl get svc -A
-```
-
-Events
-
-```bash
-kubectl get events -A
-```
-
-Metrics
-
-```bash
-kubectl top nodes
-
-kubectl top pods -A
-```
-
----
-
-# API Endpoints
-
-| Endpoint                | Description         |
-| ----------------------- | ------------------- |
-| /health                 | Health Check        |
-| /api/dashboard          | Dashboard Summary   |
-| /api/cluster            | Cluster Information |
-| /api/nodes              | List Nodes          |
-| /api/pods               | List Pods           |
-| /api/namespaces         | List Namespaces     |
-| /api/deployments        | List Deployments    |
-| /api/monitoring/cluster | Cluster Monitoring  |
-| /api/monitoring/nodes   | Node Monitoring     |
-| /api/monitoring/pods    | Pod Monitoring      |
-| /api/monitoring/network | Network Monitoring  |
-| /api/monitoring/storage | Storage Monitoring  |
-| /api/events             | Kubernetes Events   |
-| /api/logs               | Pod Logs            |
-| /api/health             | Health Status       |
-
----
-
-# Project Structure
+Web-based platform for managing and monitoring Kubernetes clusters with an intelligent recommendation engine.
+
+## Features
+
+- **Dashboard** – Cluster overview (nodes, namespaces, pods, status)
+- **Node Monitoring** – Node status, roles, versions, IPs
+- **Pod Monitoring** – Pod status, restarts, IPs with search & filter
+- **Resource Monitoring** – CPU, memory, storage, network metrics
+- **Deployment Manager** – Create, scale, restart, delete deployments
+- **Logs & Events** – Pod logs and Kubernetes events viewer
+- **Health Monitoring** – Health score, failed/restarting pods, warnings
+- **Recommendation Engine** – Actionable advice for overloaded CPU, memory pressure, unhealthy pods, underutilized nodes
+- **Settings** – API URL, refresh interval, theme preferences
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Backend | Go, Gin, Kubernetes Client-Go |
+| Frontend | React.js, Vite, React Router |
+| Monitoring | Metrics Server, Prometheus (optional) |
+| Orchestration | Kubernetes (Minikube / Kind) |
+
+## Project Structure
 
 ```
 kubeintel/
-│
 ├── backend/
-│   ├── cmd/
+│   ├── cmd/server/          # Main entrypoint
 │   ├── internal/
-│   ├── routes/
-│   ├── configs/
-│   ├── go.mod
-│   └── main.go
-│
+│   │   ├── api/             # REST handlers
+│   │   ├── kubernetes/     # K8s client helpers
+│   │   ├── monitoring/      # Metrics integration
+│   │   └── prometheus/      # Prometheus helpers
+│   ├── routes/              # Route registration
+│   └── Dockerfile
 ├── frontend/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── package.json
-│   └── vite.config.js
-│
+│   └── src/
+│       ├── pages/           # Dashboard, Nodes, Pods, etc.
+│       ├── components/      # Sidebar, Navbar, Cards
+│       ├── services/        # API clients
+│       └── api/
 ├── docs/
 ├── scripts/
 ├── docker/
@@ -456,93 +49,77 @@ kubeintel/
 └── README.md
 ```
 
----
+## Prerequisites
 
-# Troubleshooting
+- Go 1.21+
+- Node.js 18+
+- Docker
+- kubectl
+- A running Kubernetes cluster (Minikube or Kind recommended)
+- Metrics Server installed (for resource metrics)
 
-## Backend returns null
+## Quick Start
 
-Check deployments
-
-```bash
-kubectl get deployments -A
-```
-
-Create test deployment
-
-```bash
-kubectl create deployment nginx --image=nginx
-```
-
----
-
-## Metrics API not available
-
-Enable Metrics Server
+### 1. Start Kubernetes (example with Minikube)
 
 ```bash
-minikube addons enable metrics-server
+minikube start
+kubectl get nodes
 ```
 
-Verify
+### 2. Backend
 
 ```bash
-kubectl top nodes
+cd backend
+go mod tidy
+go run ./cmd/server
+# Server listens on :8080
 ```
 
----
-
-## Prometheus namespace not found
-
-Create namespace
+### 3. Frontend
 
 ```bash
-kubectl create namespace monitoring
+cd frontend
+npm install
+npm run dev
+# App at http://localhost:5173
 ```
 
-Install Prometheus
+## API Endpoints
 
-```bash
-helm install prometheus prometheus-community/prometheus -n monitoring
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/cluster` | Cluster info |
+| GET | `/api/nodes` | List nodes |
+| GET | `/api/pods` | List pods |
+| GET | `/api/namespaces` | List namespaces |
+| GET | `/api/dashboard` | Dashboard summary |
+| GET | `/api/monitoring/nodes` | Node metrics |
+| GET | `/api/monitoring/pods` | Pod metrics |
+| GET | `/api/monitoring/cluster` | Combined metrics |
+| GET | `/api/deployments` | List deployments |
+| POST | `/api/deployments` | Create deployment |
+| DELETE | `/api/deployments/:name` | Delete deployment |
+| PUT | `/api/deployments/:name/scale` | Scale deployment |
+| POST | `/api/deployments/:name/restart` | Restart deployment |
+| GET | `/api/logs` | Pod logs |
+| GET | `/api/events` | Cluster events |
+| GET | `/api/health` | Health score + warnings |
+| GET | `/api/recommendations` | Intelligent recommendations |
 
----
+## Development Assignments Covered
 
-## Frontend Blank Page
+1. Development Environment
+2. Kubernetes API Integration
+3. Dashboard Development
+4. Resource Monitoring
+5. Deployment Manager
+6. Logs and Events
+7. Health Monitoring
+8. Recommendation Engine
+9. Product Improvement (UI, Settings, loading states)
+10. Final Product packaging (in progress)
 
-Check backend is running
+## License
 
-```bash
-curl http://localhost:8080/health
-```
-
-Open browser Developer Tools (F12) and inspect Console and Network tabs for API or JavaScript errors.
-
----
-
-# Future Enhancements
-
-* Authentication & Role-Based Access Control (RBAC)
-* Real-time monitoring with WebSockets
-* Alerting using Prometheus Alertmanager
-* Grafana Dashboard Integration
-* Multi-cluster Support
-* AI-based Recommendation Engine
-* Notification System
-* PDF/CSV Report Export
-* Dark Mode
-* Audit Logs
-
----
-
-# License
-
-This project is intended for educational and internship purposes.
-
----
-
-# Author
-
-**KubeIntel – Kubernetes Intelligent Resource & Network Management Platform**
-
-Developed using Go, React, Kubernetes, Docker, Prometheus, and Minikube.
+Internship project – for educational use.

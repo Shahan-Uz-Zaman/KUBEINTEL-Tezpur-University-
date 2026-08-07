@@ -1,0 +1,103 @@
+.settings-page h1 {
+  margin: 0 0 6px 0;
+  color: #1e293b;
+}
+
+.settings-subtitle {
+  color: #64748b;
+  margin: 0 0 24px 0;
+  font-size: 14px;
+}
+
+.settings-form {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.settings-card h3 {
+  margin: 0 0 14px 0;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.settings-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.settings-card input,
+.settings-card select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1e293b;
+  outline: none;
+}
+
+.settings-card input:focus,
+.settings-card select:focus {
+  border-color: #2563eb;
+}
+
+.hint {
+  margin: 8px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.about-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-grid strong {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.about-grid p {
+  margin: 2px 0 0 0;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.save-btn {
+  padding: 12px 24px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.save-btn:hover {
+  background: #1d4ed8;
+}
+
+.saved-msg {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 12px;
+  align-self: center;
+}
