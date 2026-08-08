@@ -1,110 +1,96 @@
 import { useEffect, useState } from "react";
-
 import DashboardCard from "../components/DashboardCard";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
 import { getDashboard } from "../services/api";
-
 import "./Dashboard.css";
 
 function Dashboard() {
-  const [dashboard, setDashboard] = useState({
-    clusterStatus: "Loading...",
-    nodeCount: 0,
-    namespaceCount: 0,
-    runningPods: 0,
-    failedPods: 0,
-  });
-
+  const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  async function loadDashboard() {
+  const loadDashboard = async () => {
     try {
       setLoading(true);
-
       const response = await getDashboard();
-      console.log("Dashboard API Response:", response);
-      console.log("Dashboard Data:", response.data);
-
       setDashboard(response.data);
-
       setError("");
     } catch (err) {
       console.error(err);
-
       setError("Unable to connect to backend");
-
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadDashboard();
+    const timer = setInterval(loadDashboard, 15000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (loading && !dashboard) {
+    return <Loading message="Loading Dashboard..." />;
   }
 
-  if (loading) {
+  if (error && !dashboard) {
     return (
-      <div className="dashboard-loading">
-        Loading Dashboard...
-      </div>
+      <ErrorState
+        message="Dashboard unavailable"
+        detail={error}
+        onRetry={loadDashboard}
+      />
     );
   }
 
-  if (error) {
-    return (
-      <div className="dashboard-error">
-        {error}
-      </div>
-    );
-  }
+  const d = dashboard || {};
 
   return (
     <div className="dashboard">
-
-      <h1>Kubernetes Cluster Dashboard</h1>
+      <div className="page-header">
+        <div>
+          <h1>Cluster Dashboard</h1>
+          <p className="page-subtitle">Real-time overview of your Kubernetes cluster</p>
+        </div>
+        <button onClick={loadDashboard} className="refresh-btn">
+          Refresh
+        </button>
+      </div>
 
       <div className="dashboard-grid">
-
         <DashboardCard
           title="Total Nodes"
-          value={dashboard.nodeCount}
+          value={d.nodeCount ?? 0}
           icon="🖥️"
           color="#2563eb"
         />
-
         <DashboardCard
           title="Namespaces"
-          value={dashboard.namespaceCount}
+          value={d.namespaceCount ?? 0}
           icon="📂"
           color="#7c3aed"
         />
-
         <DashboardCard
           title="Running Pods"
-          value={dashboard.runningPods}
+          value={d.runningPods ?? 0}
           icon="📦"
           color="#22c55e"
         />
-
         <DashboardCard
           title="Failed Pods"
-          value={dashboard.failedPods}
+          value={d.failedPods ?? 0}
           icon="❌"
           color="#ef4444"
         />
-
         <DashboardCard
           title="Cluster Status"
-          value={dashboard.clusterStatus}
+          value={d.clusterStatus || "Unknown"}
           icon="☸️"
           color={
-            dashboard.clusterStatus === "Healthy"
-              ? "#22c55e"
-              : "#f59e0b"
+            d.clusterStatus === "Healthy" ? "#22c55e" : "#f59e0b"
           }
         />
-
       </div>
     </div>
   );

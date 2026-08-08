@@ -1,220 +1,183 @@
 import { useEffect, useState } from "react";
-import {
-    getLogs,
-    getPods,
-    getNamespaces
-} from "../api/logs";
+import { getLogs, getPods, getNamespaces } from "../api/logs";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
+import "./Logs.css";
 
 function Logs() {
+  const [namespaces, setNamespaces] = useState([]);
+  const [pods, setPods] = useState([]);
+  const [namespace, setNamespace] = useState("default");
+  const [pod, setPod] = useState("");
+  const [logs, setLogs] = useState("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [initLoading, setInitLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    const [namespaces, setNamespaces] = useState([]);
-    const [pods, setPods] = useState([]);
+  useEffect(() => {
+    async function load() {
+      try {
+        const ns = await getNamespaces();
+        setNamespaces(Array.isArray(ns) ? ns : ns?.namespaces || []);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load namespaces");
+      } finally {
+        setInitLoading(false);
+      }
+    }
+    load();
+  }, []);
 
-    const [namespace, setNamespace] = useState("default");
-    const [pod, setPod] = useState("");
+  useEffect(() => {
+    async function loadPods() {
+      try {
+        const p = await getPods(namespace);
+        const list = Array.isArray(p) ? p : p?.pods || [];
+        setPods(list);
+        setPod("");
+        setLogs("");
+      } catch (err) {
+        console.error(err);
+        setPods([]);
+      }
+    }
+    loadPods();
+  }, [namespace]);
 
-    const [logs, setLogs] = useState("");
+  const loadLogs = async () => {
+    if (!pod) return;
+    try {
+      setLoading(true);
+      const data = await getLogs(namespace, pod);
+      setLogs(typeof data === "string" ? data : data?.logs || String(data || ""));
+      setError("");
+    } catch (err) {
+      console.error(err);
+      setError("Unable to fetch logs");
+      setLogs("");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const [search, setSearch] = useState("");
+  useEffect(() => {
+    if (!pod) return;
+    loadLogs();
+    const t = setInterval(loadLogs, 10000);
+    return () => clearInterval(t);
+  }, [pod, namespace]);
 
-    const loadLogs = async () => {
-
-        if (!pod) return;
-
-        try {
-
-            const data = await getLogs(namespace, pod);
-
-            setLogs(data);
-
-        } catch (err) {
-
-            console.error(err);
-
-        }
-
-    };
-
-    useEffect(() => {
-
-        async function load() {
-
-            const ns = await getNamespaces();
-
-            setNamespaces(ns);
-
-        }
-
-        load();
-
-    }, []);
-
-    useEffect(() => {
-
-        async function loadPods() {
-
-            const p = await getPods(namespace);
-
-            setPods(p);
-
-        }
-
-        loadPods();
-
-    }, [namespace]);
-
-    useEffect(() => {
-
-        if (!pod) return;
-
-        loadLogs();
-
-        const timer = setInterval(loadLogs, 5000);
-
-        return () => clearInterval(timer);
-
-    }, [pod]);
-
-    const filteredLogs = logs
+  const filteredLogs = search
+    ? logs
         .split("\n")
-        .filter(line =>
-            line.toLowerCase()
-                .includes(search.toLowerCase()))
-        .join("\n");
+        .filter((line) => line.toLowerCase().includes(search.toLowerCase()))
+        .join("\n")
+    : logs;
 
-    const copyLogs = () => {
+  const copyLogs = () => {
+    navigator.clipboard.writeText(filteredLogs || "");
+  };
 
-        navigator.clipboard.writeText(logs);
+  const downloadLogs = () => {
+    const blob = new Blob([filteredLogs || ""], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${pod || "pod"}-logs.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-        alert("Logs copied");
+  if (initLoading) {
+    return <Loading message="Loading Logs Viewer..." />;
+  }
 
-    };
-
-    const downloadLogs = () => {
-
-        const blob = new Blob([logs]);
-
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-
-        a.href = url;
-
-        a.download = `${pod}.log`;
-
-        a.click();
-
-    };
-    console.log("namespaces:", namespaces);
-    console.log("pods:", pods);
-    console.log("selected pod:", pod);
-    console.log("logs:", logs);
+  if (error && namespaces.length === 0) {
     return (
+      <ErrorState message="Logs unavailable" detail={error} onRetry={() => window.location.reload()} />
+    );
+  }
 
-        <div className="container mt-4">
+  const nsList = Array.isArray(namespaces)
+    ? namespaces.map((n) => (typeof n === "string" ? n : n.name || n.Name))
+    : [];
 
-            <div className="row mb-3">
+  return (
+    <div className="logs-page">
+      <div className="page-header">
+        <div>
+          <h1>Pod Logs</h1>
+          <p className="page-subtitle">View and search container logs</p>
+        </div>
+      </div>
 
-                <div className="col">
-
-                    <select
-                        className="form-select"
-                        value={namespace}
-                        onChange={(e)=>setNamespace(e.target.value)}
-                    >
-
-                        {
-                            namespaces.map(ns=>(
-                                <option key={ns.name} value={ns.name}>
-                                    {ns.name}
-                                </option>
-                            ))
-                        }
-
-                    </select>
-
-                </div>
-
-                <div className="col">
-
-                    <select
-                        className="form-select"
-                        value={pod}
-                        onChange={(e)=>setPod(e.target.value)}
-                    >
-
-                        <option value="">
-                            Select Pod
-                        </option>
-
-                        {
-
-                        pods
-                            .filter(p => p.namespace === namespace)
-                            .map(p => (
-                                <option key={p.name} value={p.name}>
-                                    {p.name}
-                                </option>
-                            ))
-
-                        }
-
-                    </select>
-
-                </div>
-
-            </div>
-
-            <div className="d-flex gap-2 mb-3">
-
-                <button
-                    className="btn btn-primary"
-                    onClick={loadLogs}
-                >
-                    Refresh
-                </button>
-
-                <button
-                    className="btn btn-success"
-                    onClick={copyLogs}
-                >
-                    Copy
-                </button>
-
-                <button
-                    className="btn btn-warning"
-                    onClick={downloadLogs}
-                >
-                    Download
-                </button>
-
-            </div>
-
-            <input
-                className="form-control mb-3"
-                placeholder="Search logs..."
-                value={search}
-                onChange={(e)=>setSearch(e.target.value)}
-            />
-
-            <pre
-                style={{
-                    background:"#111",
-                    color:"#00ff66",
-                    padding:"20px",
-                    height:"600px",
-                    overflow:"auto",
-                    borderRadius:"10px",
-                    fontSize:"13px"
-                }}
-            >
-                {filteredLogs}
-            </pre>
-
+      <div className="logs-controls">
+        <div className="control-group">
+          <label>Namespace</label>
+          <select
+            value={namespace}
+            onChange={(e) => setNamespace(e.target.value)}
+            className="control-select"
+          >
+            {nsList.map((ns) => (
+              <option key={ns} value={ns}>
+                {ns}
+              </option>
+            ))}
+          </select>
         </div>
 
-    );
+        <div className="control-group">
+          <label>Pod</label>
+          <select
+            value={pod}
+            onChange={(e) => setPod(e.target.value)}
+            className="control-select"
+          >
+            <option value="">Select a pod...</option>
+            {pods.map((p) => {
+              const name = typeof p === "string" ? p : p.name;
+              return (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              );
+            })}
+          </select>
+        </div>
 
+        <div className="control-actions">
+          <button onClick={loadLogs} className="refresh-btn" disabled={!pod || loading}>
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+          <button onClick={copyLogs} className="secondary-btn" disabled={!logs}>
+            Copy
+          </button>
+          <button onClick={downloadLogs} className="secondary-btn" disabled={!logs}>
+            Download
+          </button>
+        </div>
+      </div>
+
+      <input
+        className="search-input logs-search"
+        placeholder="Filter log lines..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      <pre className="logs-viewer">
+        {!pod
+          ? "Select a pod to view logs."
+          : loading && !logs
+          ? "Fetching logs..."
+          : filteredLogs || "No log output."}
+      </pre>
+    </div>
+  );
 }
 
 export default Logs;

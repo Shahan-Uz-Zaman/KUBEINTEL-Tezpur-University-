@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getPods } from "../services/api";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
 import "./TablePages.css";
 
 function Pods() {
@@ -40,11 +42,13 @@ function Pods() {
   });
 
   if (loading && pods.length === 0) {
-    return <div className="page-loading">Loading Pods...</div>;
+    return <Loading message="Loading Pods..." />;
   }
 
   if (error && pods.length === 0) {
-    return <div className="page-error">{error}</div>;
+    return (
+      <ErrorState message="Pods unavailable" detail={error} onRetry={loadPods} />
+    );
   }
 
   return (

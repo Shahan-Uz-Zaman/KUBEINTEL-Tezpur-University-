@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getNodes } from "../services/api";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
 import "./TablePages.css";
 
 function Nodes() {
@@ -36,11 +38,13 @@ function Nodes() {
   );
 
   if (loading && nodes.length === 0) {
-    return <div className="page-loading">Loading Nodes...</div>;
+    return <Loading message="Loading Nodes..." />;
   }
 
   if (error && nodes.length === 0) {
-    return <div className="page-error">{error}</div>;
+    return (
+      <ErrorState message="Nodes unavailable" detail={error} onRetry={loadNodes} />
+    );
   }
 
   return (

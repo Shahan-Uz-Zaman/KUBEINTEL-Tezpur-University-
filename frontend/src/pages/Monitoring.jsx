@@ -6,6 +6,8 @@ import {
   getHealth
 } from "../services/monitoringService";
 import MetricCard from "../components/MetricCard";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
 
 function Monitoring() {
 
@@ -62,31 +64,9 @@ function Monitoring() {
   }, []);
 
   if (loading) {
-      return (
-          <div
-              className="d-flex justify-content-center align-items-center"
-              style={{ height: "70vh" }}
-          >
-              <div className="text-center">
-
-                  <div
-                      className="spinner-border text-primary"
-                      style={{ width: "4rem", height: "4rem" }}
-                      role="status"
-                  >
-                      <span className="visually-hidden">
-                          Loading...
-                      </span>
-                  </div>
-
-                  <h3 className="mt-4">
-                      Loading Cluster Metrics...
-                  </h3>
-
-              </div>
-          </div>
-      );
+    return <Loading message="Loading Cluster Metrics..." />;
   }
+
   if (
       cluster &&
       cluster.nodes.length === 0 &&

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getHealth } from "./services/api";
+import Loading from "./components/Loading";
+import ErrorState from "./components/ErrorState";
 import "./Health.css";
 
 function Health() {
@@ -26,12 +28,18 @@ function Health() {
     return () => clearInterval(timer);
   }, []);
 
-  if (loading) {
-    return <div className="health-loading">Loading Health Dashboard...</div>;
+  if (loading && !health) {
+    return <Loading message="Loading Health Dashboard..." />;
   }
 
-  if (error || !health) {
-    return <div className="health-error">{error || "No data"}</div>;
+  if ((error || !health) && !health) {
+    return (
+      <ErrorState
+        message="Health unavailable"
+        detail={error || "No data"}
+        onRetry={fetchHealth}
+      />
+    );
   }
 
   const scoreColor =

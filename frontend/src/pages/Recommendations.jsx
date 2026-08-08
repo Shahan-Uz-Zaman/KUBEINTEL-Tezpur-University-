@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getRecommendations } from "../services/api";
+import Loading from "../components/Loading";
+import ErrorState from "../components/ErrorState";
 import "./Recommendations.css";
 
 function Recommendations() {
@@ -29,11 +31,13 @@ function Recommendations() {
   }, []);
 
   if (loading && !data) {
-    return <div className="page-loading">Loading Recommendations...</div>;
+    return <Loading message="Loading Recommendations..." />;
   }
 
   if (error && !data) {
-    return <div className="page-error">{error}</div>;
+    return (
+      <ErrorState message="Recommendations unavailable" detail={error} onRetry={load} />
+    );
   }
 
   const list = data?.recommendations || [];
