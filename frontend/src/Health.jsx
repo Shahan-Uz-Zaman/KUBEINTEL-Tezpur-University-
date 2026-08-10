@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getHealth } from "./services/api";
+import { getRefreshIntervalMs } from "./services/settings";
 import Loading from "./components/Loading";
 import ErrorState from "./components/ErrorState";
 import "./Health.css";
@@ -24,7 +25,7 @@ function Health() {
 
   useEffect(() => {
     fetchHealth();
-    const timer = setInterval(fetchHealth, 10000);
+    const timer = setInterval(fetchHealth, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 

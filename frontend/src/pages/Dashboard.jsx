@@ -3,6 +3,7 @@ import DashboardCard from "../components/DashboardCard";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import { getDashboard } from "../services/api";
+import { getRefreshIntervalMs } from "../services/settings";
 import "./Dashboard.css";
 
 function Dashboard() {
@@ -26,7 +27,7 @@ function Dashboard() {
 
   useEffect(() => {
     loadDashboard();
-    const timer = setInterval(loadDashboard, 15000);
+    const timer = setInterval(loadDashboard, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 

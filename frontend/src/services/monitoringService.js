@@ -1,21 +1,13 @@
 import axios from "axios";
+import { getApiBaseUrl } from "./settings";
 
-const API = "http://localhost:8080/api/monitoring";
+function monitoringBase() {
+  return getApiBaseUrl().replace(/\/api$/, "") + "/api/monitoring";
+}
 
-export const getClusterMetrics = () =>
-  axios.get(`${API}/cluster`);
-
-export const getNodeMetrics = () =>
-  axios.get(`${API}/nodes`);
-
-export const getPodMetrics = () =>
-  axios.get(`${API}/pods`);
-
-export const getStorage = () =>
-    axios.get(`${API}/storage`);
-
-export const getNetwork = () =>
-    axios.get(`${API}/network`);
-export const getHealth = () => {
-    return axios.get("http://localhost:8080/api/health");
-};
+export const getClusterMetrics = () => axios.get(`${monitoringBase()}/cluster`);
+export const getNodeMetrics = () => axios.get(`${monitoringBase()}/nodes`);
+export const getPodMetrics = () => axios.get(`${monitoringBase()}/pods`);
+export const getStorage = () => axios.get(`${monitoringBase()}/storage`);
+export const getNetwork = () => axios.get(`${monitoringBase()}/network`);
+export const getHealth = () => axios.get(`${getApiBaseUrl()}/health`);

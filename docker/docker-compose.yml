@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: kubeintel-backend:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount host kubeconfig for local cluster access
+      - ${HOME}/.kube:/home/nobody/.kube:ro
+    environment:
+      - HOME=/home/nobody
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: kubeintel-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

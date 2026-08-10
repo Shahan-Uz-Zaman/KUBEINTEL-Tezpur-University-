@@ -5,15 +5,22 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
+	"time"
 )
 
-const BaseURL = "http://localhost:9090"
+// BaseURL can be overridden with PROMETHEUS_URL env var
+var BaseURL = func() string {
+	if v := os.Getenv("PROMETHEUS_URL"); v != "" {
+		return v
+	}
+	return "http://localhost:9090"
+}()
 
 type QueryResponse struct {
 	Status string `json:"status"`
-
-	Data struct {
+	Data   struct {
 		Result []struct {
 			Metric map[string]string `json:"metric"`
 			Value  []interface{}     `json:"value"`
@@ -30,24 +37,34 @@ type StorageMetric struct {
 	AvailableGB float64 `json:"availableGB"`
 }
 
-func Query(query string) (*QueryResponse, error) {
+var httpClient = &http.Client{
+	Timeout: 3 * time.Second,
+}
 
+func Query(query string) (*QueryResponse, error) {
 	queryURL := fmt.Sprintf(
 		"%s/api/v1/query?query=%s",
 		BaseURL,
 		url.QueryEscape(query),
 	)
 
-	resp, err := http.Get(queryURL)
+	resp, err := httpClient.Get(queryURL)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("prometheus unreachable at %s: %w", BaseURL, err)
 	}
 	defer resp.Body.Close()
 
-	var result QueryResponse
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("prometheus returned status %d", resp.StatusCode)
+	}
 
+	var result QueryResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
+	}
+
+	if result.Status != "success" {
+		return nil, fmt.Errorf("prometheus query status: %s", result.Status)
 	}
 
 	return &result, nil
@@ -55,8 +72,7 @@ func Query(query string) (*QueryResponse, error) {
 
 // ParseMetricValue extracts the numeric value from the first Prometheus result.
 func ParseMetricValue(result *QueryResponse) (float64, error) {
-
-	if len(result.Data.Result) == 0 {
+	if result == nil || len(result.Data.Result) == 0 {
 		return 0, fmt.Errorf("no metrics returned from Prometheus")
 	}
 

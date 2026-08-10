@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getRecommendations } from "../services/api";
+import { getRefreshIntervalMs } from "../services/settings";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import "./Recommendations.css";
@@ -26,7 +27,7 @@ function Recommendations() {
 
   useEffect(() => {
     load();
-    const timer = setInterval(load, 20000);
+    const timer = setInterval(load, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 

@@ -1,14 +1,8 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Arial, Helvetica, sans-serif;
-}
-
 .app-container {
   display: flex;
   min-height: 100vh;
-  background: #f1f5f9;
+  background: var(--page-bg);
+  position: relative;
 }
 
 .main-content {
@@ -16,15 +10,21 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: 100%;
 }
 
 .page-content {
-  padding: 24px 28px;
+  padding: 20px 24px;
   flex: 1;
   overflow-x: auto;
+  background: var(--page-bg);
+  color: var(--text-primary);
 }
 
-/* Shared page utilities */
+.sidebar-overlay {
+  display: none;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -36,21 +36,91 @@
 
 .page-header h1 {
   margin: 0;
-  color: #1e293b;
-  font-size: 24px;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
 .refresh-btn {
-  padding: 8px 16px;
-  background: #2563eb;
+  padding: 0.5rem 1rem;
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .refresh-btn:hover {
-  background: #1d4ed8;
+  background: var(--primary-hover);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  padding: 0.5rem 0.9rem;
+  background: var(--secondary-btn-bg);
+  color: var(--secondary-btn-text);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  background: var(--secondary-btn-hover);
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .page-content {
+    padding: 16px 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: 150;
+  }
+
+  .page-content {
+    padding: 14px 12px;
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding: 12px 10px;
+  }
+
+  .refresh-btn,
+  .secondary-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+  }
 }

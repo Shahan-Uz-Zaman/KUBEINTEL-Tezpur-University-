@@ -1,10 +1,17 @@
 import axios from "axios";
+import { getApiBaseUrl, loadSettings } from "./settings";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: getApiBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+// Always use latest API URL from settings
+api.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
+  return config;
 });
 
 export const getDashboard = () => api.get("/dashboard");
@@ -39,5 +46,13 @@ export const scaleDeployment = async (name, replicas) => {
     replicas,
   });
 };
+
+export function testConnection(apiUrl) {
+  const base = (apiUrl || loadSettings().apiUrl || "http://localhost:8080").replace(
+    /\/$/,
+    ""
+  );
+  return axios.get(`${base}/api/health`, { timeout: 5000 });
+}
 
 export default api;

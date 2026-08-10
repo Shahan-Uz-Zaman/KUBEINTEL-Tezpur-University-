@@ -13,9 +13,9 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #fee2e2;
-  color: #dc2626;
-  font-size: 28px;
+  background: var(--danger-bg);
+  color: var(--danger-text);
+  font-size: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,29 +24,29 @@
 
 .error-title {
   margin: 0;
-  color: #1e293b;
-  font-size: 18px;
+  color: var(--text-primary);
+  font-size: 1.1rem;
 }
 
 .error-detail {
   margin: 0;
-  color: #64748b;
-  font-size: 14px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
   max-width: 400px;
 }
 
 .error-retry-btn {
   margin-top: 12px;
   padding: 10px 20px;
-  background: #2563eb;
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .error-retry-btn:hover {
-  background: #1d4ed8;
+  background: var(--primary-hover);
 }

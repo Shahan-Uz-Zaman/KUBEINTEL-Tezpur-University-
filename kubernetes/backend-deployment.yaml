@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeintel-backend
+  namespace: kubeintel
+  labels:
+    app: kubeintel-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeintel-backend
+  template:
+    metadata:
+      labels:
+        app: kubeintel-backend
+    spec:
+      serviceAccountName: kubeintel
+      containers:
+        - name: backend
+          image: kubeintel-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: PORT
+              value: "8080"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubeintel-backend
+  namespace: kubeintel
+spec:
+  selector:
+    app: kubeintel-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+  type: ClusterIP

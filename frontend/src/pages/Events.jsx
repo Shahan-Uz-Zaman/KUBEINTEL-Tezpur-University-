@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEvents } from "../api/events";
+import { getRefreshIntervalMs } from "../services/settings";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import "./TablePages.css";
@@ -26,7 +27,7 @@ function Events() {
 
   useEffect(() => {
     loadEvents();
-    const timer = setInterval(loadEvents, 15000);
+    const timer = setInterval(loadEvents, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 

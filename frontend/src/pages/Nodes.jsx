@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getNodes } from "../services/api";
+import { getRefreshIntervalMs } from "../services/settings";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import "./TablePages.css";
@@ -26,7 +27,7 @@ function Nodes() {
 
   useEffect(() => {
     loadNodes();
-    const timer = setInterval(loadNodes, 15000);
+    const timer = setInterval(loadNodes, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 

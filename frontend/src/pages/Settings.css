@@ -1,64 +1,113 @@
-.settings-page h1 {
-  margin: 0 0 6px 0;
-  color: #1e293b;
-}
-
-.settings-subtitle {
-  color: #64748b;
-  margin: 0 0 24px 0;
-  font-size: 14px;
+.settings-page {
+  width: 100%;
+  max-width: 720px;
 }
 
 .settings-form {
-  max-width: 640px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 .settings-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 20px 22px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .settings-card h3 {
   margin: 0 0 14px 0;
-  color: #1e293b;
-  font-size: 16px;
+  color: var(--text-primary);
+  font-size: 1rem;
 }
 
 .settings-card label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .settings-card input,
 .settings-card select {
   padding: 10px 12px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 0.9rem;
   font-weight: 400;
-  color: #1e293b;
+  color: var(--text-primary);
+  background: var(--input-bg);
   outline: none;
+  width: 100%;
 }
 
 .settings-card input:focus,
 .settings-card select:focus {
-  border-color: #2563eb;
+  border-color: var(--primary);
+}
+
+.mt-label {
+  margin-top: 16px;
+}
+
+.theme-toggle-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-option {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--secondary-btn-bg);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.theme-option:hover {
+  border-color: var(--primary);
+}
+
+.theme-option.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 .hint {
   margin: 8px 0 0 0;
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 0.75rem;
+  color: var(--text-muted);
   font-weight: 400;
+}
+
+.settings-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.test-ok {
+  color: var(--success-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.test-fail {
+  color: var(--danger-text);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .about-grid {
@@ -68,36 +117,46 @@
 }
 
 .about-grid strong {
-  font-size: 13px;
-  color: #64748b;
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .about-grid p {
   margin: 2px 0 0 0;
-  color: #1e293b;
-  font-size: 14px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
 .save-btn {
   padding: 12px 24px;
-  background: #2563eb;
+  background: var(--primary);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  align-self: flex-start;
 }
 
 .save-btn:hover {
-  background: #1d4ed8;
+  background: var(--primary-hover);
 }
 
-.saved-msg {
-  color: #16a34a;
-  font-weight: 600;
-  font-size: 14px;
-  margin-left: 12px;
-  align-self: center;
+@media (max-width: 480px) {
+  .settings-card {
+    padding: 16px;
+  }
+
+  .theme-option {
+    flex: 1;
+    text-align: center;
+    min-width: 90px;
+  }
 }

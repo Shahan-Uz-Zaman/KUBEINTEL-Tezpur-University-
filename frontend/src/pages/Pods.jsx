@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getPods } from "../services/api";
+import { getRefreshIntervalMs } from "../services/settings";
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 import "./TablePages.css";
@@ -27,7 +28,7 @@ function Pods() {
 
   useEffect(() => {
     loadPods();
-    const timer = setInterval(loadPods, 10000);
+    const timer = setInterval(loadPods, getRefreshIntervalMs());
     return () => clearInterval(timer);
   }, []);
 
