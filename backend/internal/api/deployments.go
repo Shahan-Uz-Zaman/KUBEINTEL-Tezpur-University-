@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -179,10 +180,6 @@ func CreateDeployment(c *gin.Context) {
 		req.Replicas = 1
 	}
 
-	if req.Port <= 0 {
-		req.Port = 80
-	}
-
 	// Validate required fields
 	if req.Name == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -198,6 +195,101 @@ func CreateDeployment(c *gin.Context) {
 		return
 	}
 
+	// Automatically select container port and probe type
+	port := req.Port
+	probeType := "none"
+
+	switch {
+	case strings.HasPrefix(req.Image, "nginx"):
+		if port <= 0 {
+			port = 80
+		}
+		probeType = "http"
+
+	case strings.HasPrefix(req.Image, "httpd"):
+		if port <= 0 {
+			port = 80
+		}
+		probeType = "http"
+
+	case strings.HasPrefix(req.Image, "redis"):
+		if port <= 0 {
+			port = 6379
+		}
+		probeType = "tcp"
+
+	case strings.HasPrefix(req.Image, "mysql"):
+		if port <= 0 {
+			port = 3306
+		}
+		probeType = "tcp"
+
+	case strings.HasPrefix(req.Image, "postgres"):
+		if port <= 0 {
+			port = 5432
+		}
+		probeType = "tcp"
+
+	default:
+		// Unknown image:
+		// use the supplied port but don't assume HTTP
+		if port <= 0 {
+			port = 80
+		}
+		probeType = "none"
+	}
+
+	// Create container
+	container := corev1.Container{
+		Name:  req.Name,
+		Image: req.Image,
+
+		Ports: []corev1.ContainerPort{
+			{
+				ContainerPort: port,
+			},
+		},
+	}
+
+	// Configure readiness probe
+	switch probeType {
+
+	case "http":
+
+		container.ReadinessProbe = &corev1.Probe{
+			ProbeHandler: corev1.ProbeHandler{
+				HTTPGet: &corev1.HTTPGetAction{
+					Path: "/",
+					Port: intstr.FromInt(int(port)),
+				},
+			},
+			InitialDelaySeconds: 5,
+			PeriodSeconds:       10,
+			TimeoutSeconds:      2,
+			FailureThreshold:    3,
+		}
+
+	case "tcp":
+
+		container.ReadinessProbe = &corev1.Probe{
+			ProbeHandler: corev1.ProbeHandler{
+				TCPSocket: &corev1.TCPSocketAction{
+					Port: intstr.FromInt(int(port)),
+				},
+			},
+			InitialDelaySeconds: 5,
+			PeriodSeconds:       10,
+			TimeoutSeconds:      2,
+			FailureThreshold:    3,
+		}
+
+	// Unknown image:
+	// no readiness probe
+	case "none":
+		container.ReadinessProbe = nil
+	}
+
+	// Create Deployment
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: req.Name,
@@ -221,37 +313,18 @@ func CreateDeployment(c *gin.Context) {
 
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
-						{
-							Name:  req.Name,
-							Image: req.Image,
-
-							Ports: []corev1.ContainerPort{
-								{
-									ContainerPort: req.Port,
-								},
-							},
-
-							ReadinessProbe: &corev1.Probe{
-								ProbeHandler: corev1.ProbeHandler{
-									HTTPGet: &corev1.HTTPGetAction{
-										Path: "/",
-										Port: intstr.FromInt(int(req.Port)),
-									},
-								},
-								InitialDelaySeconds: 5,
-								PeriodSeconds:       10,
-							},
-						},
+						container,
 					},
 				},
 			},
 		},
 	}
 
+	// Send deployment to Kubernetes
 	err := kubernetes.CreateDeployment(req.Namespace, deployment)
+
 	if err != nil {
 
-		// Print actual Kubernetes error
 		log.Printf("CreateDeployment Error: %v", err)
 
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -263,5 +336,9 @@ func CreateDeployment(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Deployment created successfully",
+		"name":    req.Name,
+		"image":   req.Image,
+		"port":    port,
+		"probe":   probeType,
 	})
 }
