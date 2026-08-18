@@ -459,7 +459,7 @@ curl http://localhost:9090/api/v1/query?query=up   # if using Prometheus
 - [x] Kubernetes manifests + RBAC
 - [x] Settings: theme, font size, API URL, refresh
 - [ ] Recorded demonstration video *(record separately)*
-- [ ] Git remote push *(your repository URL)*
+- [x] Git remote push *(your repository URL)*
 
 ---
 
@@ -478,11 +478,7 @@ curl http://localhost:9090/api/v1/query?query=up   # if using Prometheus
 ## License
 
 Internship educational project.  
-Not licensed for production use without further review.
+Not licensed for production use.
 
 ---
 
-## Author
-
-Internship project — **KubeIntel**  
-Kubernetes Intelligent Resource & Network Management Platform
