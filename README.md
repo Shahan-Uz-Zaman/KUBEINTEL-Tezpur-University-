@@ -359,7 +359,7 @@ kubectl apply -f kubernetes/frontend-deployment.yaml
 kubectl get all -n kubeintel
 minikube service kubeintel-frontend -n kubeintel
 # or:
-kubectl port-forward -n kubeintel svc/kubeintel-frontend 8081:80
+kubectl port-forward svc/prometheus-server 9090:80 -n monitoring
 ```
 
 Details: **[kubernetes/README.md](kubernetes/README.md)**
